@@ -5,7 +5,7 @@ const message = ref('Loading...')
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:8000/api/hello')
+    const res = await fetch('http://127.0.0.1:8000/api/hello')
     if (!res.ok) {
       throw new Error(await res.text())
     }
