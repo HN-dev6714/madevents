@@ -20,6 +20,7 @@ def get_db():
 
 def init_db():
     conn = duckdb.connect(DB_PATH)
+    
     conn.execute("""
         CREATE TABLE IF NOT EXISTS "Group" (
             IDg INTEGER PRIMARY KEY,
@@ -44,7 +45,8 @@ def init_db():
             Address VARCHAR NOT NULL,
             Description TEXT,
             Name VARCHAR NOT NULL,
-            Size INTEGER DEFAULT 0
+            Size INTEGER DEFAULT 0,
+            DateTime TIMESTAMP NOT NULL
         )
     """)
     conn.execute("""
@@ -109,6 +111,7 @@ class EventCreateRequest(BaseModel):
     Description: Optional[str] = None
     Name: str
     Size: Optional[int] = 0
+    DateTime: datetime
 
 class EventCreateResponse(BaseModel):
     msg: str
@@ -130,6 +133,7 @@ class GetEventResponse(BaseModel):
     Description: Optional[str] = None
     Name: str
     Size: int
+    DateTime: datetime
 
 
 # --- Auth Helpers ---
@@ -319,12 +323,12 @@ def create_event(event: EventCreateRequest, conn=Depends(get_db), user_id=Depend
 
     event_id = conn.execute(
         """
-        INSERT INTO Event (IDe, IsPublic, Longitude, Latitude, Address, Description, Name, Size)
-        VALUES (nextval('event_seq'), ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Event (IDe, IsPublic, Longitude, Latitude, Address, Description, Name, Size, DateTime)
+        VALUES (nextval('event_seq'), ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING IDe
         """, [
         event.IsPublic, event.Longitude, event.Latitude, event.Address,
-        event.Description, event.Name, event.Size
+        event.Description, event.Name, event.Size, event.DateTime
     ]).fetchone()[0]
 
     group_id = conn.execute(
@@ -385,7 +389,7 @@ def list_events(conn=Depends(get_db), session_cookie: Optional[str] = Cookie(Non
 
     return [
         {"Latitude": r[2], "Longitude": r[3], "Address": r[4], "Description": r[5],
-         "Name": r[6], "Size": r[7]}
+         "Name": r[6], "Size": r[7], "DateTime": r[8]}
         for r in rows
     ]
 
