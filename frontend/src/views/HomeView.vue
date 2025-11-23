@@ -6,11 +6,9 @@
       <SearchBar :events="list"/>
     </div>
     <div class="right-column">
-      <Map></Map>
+      <Map ref="mapRef" :events="list"></Map>
       <WeekDisplay :days="weekDates"></WeekDisplay>
     </div>
-    <!--Map component, that takes in all events and displays them-->
-    <!--Calendar.vue with EventBox.vue that have all matching dates-->
     </div>
   </main>
 </template>
@@ -21,7 +19,7 @@
     import Map from '@/components/Map.vue'
     import WeekDisplay from '@/components/WeekDisplay.vue'
     import { computed, onMounted } from 'vue'
-    import axios from 'axios'
+    import client from '@/api/client'
 
     // TODO: Move this to shared types
     interface IDay {
@@ -41,48 +39,62 @@
 
     onMounted(async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/data');
+        const response = await client.get<Event>('/events');
         console.log(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     });
 
-    const list: Event[] = [
+       const list: Event[] = [
       {
-        id: 1,
-        name: "Farmer's market",
-        description: "Market happening every Saturday",
-        latitude: -0.1,
-        longitude: 0.1,
-        datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 6)).toISOString(),
+      id: 1,
+      name: "NEEDTOBREATH",
+      description: "The barely elegant acousitc tour",
+      latitude: "43.0831",
+      longitude: "-89.3731",
+      datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 6)).toISOString(),
+      address: "brease stevens field, Madison"
       },
       {
-        id: 2,
-        name: "Party at the Parthenon",
-        description: "Hosted by none other than Zeus",
-        latitude: 17,
-        longitude: 38,
-        datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 3)).toISOString(),
+      id: 2,
+      name: "LOLO: U TOUR ME ON",
+      description: "Music tour",
+      latitude: "43.0831",
+      longitude: "-89.3731",
+      datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 3)).toISOString(),
+      address: "brease stevens field" 
       },
       {
-        id: 3,
-        name: "Farm",
-        description: "Farm happening every Saturday",
-        latitude: -0.1,
-        longitude: 0.1,
-        datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 1)).toISOString(),
+      id: 3,
+      name: "MSO After Dark",
+      description: "Fall Crafting Festival",
+      latitude: "43.0440",
+      longitude: "-89.3807",
+      datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 1)).toISOString(),
+      address: "456 Country Rd, Springfield"
       },
       {
-        id: 4,
-        name: "Moses Parting",
-        description: "Moses parting the red sea",
-        latitude: 17,
-        longitude: 38,
-        datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 4)).toISOString(),
+      id: 4,
+      name: "Bridal & Wedding Expo",
+      description: "Wisconsin Bridal and Wedding Expo",
+      latitude: "43.0440",
+      longitude: "-89.3807",
+      datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 4)).toISOString(),
+      address: "Alliant Energy Center, Madison"
+      },
+      {
+      id: 5,
+      name: "Womens Basketball",
+      description: "Wisconsin Badgers Women'S Basketball",
+      latitude: "43.0687", 
+      longitude: " -89.4077",
+      datetime: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 7)).toISOString(),
+      address: "Camp Randall Stadium, Madison"
       }
     ]
 
+    //
     const weekDates = computed(() => {
         const today = new Date();
         const currentDayOfWeek = today.getDay();

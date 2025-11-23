@@ -1,4 +1,4 @@
-// Example of what useAuth might look like
+// Keep this in case we need to use mock data for demo
 import { ref } from 'vue'
 
 const currentUser = ref<string | null>(null)

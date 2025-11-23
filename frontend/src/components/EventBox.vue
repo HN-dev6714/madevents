@@ -1,9 +1,8 @@
 <template>
-    <div class="full-box">
+    <div class="full-box" @click="marker()">
         <h2>{{  event.name }}</h2>
         <h3> {{ convertToFriendlyDate(event.datetime) }}</h3>
-        <!-- <p>{{ event.latitude }},{{ event.longitude }}</p> -->
-        <p>{{ description }}</p>
+       <p>{{ description }}</p>
     </div>
 </template>
 
@@ -28,6 +27,10 @@
     const props = defineProps<{
         event: Event;
     }>();
+
+    function marker(){
+        console.log("HEY!")
+    }
 </script>
 
 <style style scoped>
@@ -37,5 +40,11 @@
         margin-bottom: 2rem;
         border-radius: 4px;
         padding: 1rem;
+        transition: background-color 0.3s ease; 
     }
+
+    .full-box:hover{
+        background: darkgray;
+    }
+
 </style>

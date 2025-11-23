@@ -31,10 +31,13 @@
         <span v-if="passwordError" class="validation-error">{{ passwordError }}</span>
       </div>
 
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div v-if="authStore.error || localMessage" class="error-message">
+        {{ authStore.error || localMessage }}
+      </div>
 
-      <button type="submit" class="submit-btn">
-        {{ isRegister ? 'Sign Up' : 'Log In' }}
+      <button type="submit" class="submit-btn" :disabled="authStore.loading">
+        <span v-if="authStore.loading">Please wait...</span>
+        <span v-else>{{ isRegister ? 'Sign Up' : 'Log In' }}</span>
       </button>
     </form>
 
@@ -51,15 +54,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/authStore' 
+import { useAuth } from '@/composables/useAuth';
 
-defineEmits(['close'])
+const emit = defineEmits(['close'])
 
+const authStore = useAuthStore();
 const { login, signup } = useAuth()
+
 const isRegister = ref(false)
 const username = ref('')
 const password = ref('')
-const errorMessage = ref('')
+const localMessage = ref('')
 const usernameError = ref('')
 const passwordError = ref('')
 
@@ -83,17 +89,17 @@ function validatePassword() {
 
 function toggleMode() {
   isRegister.value = !isRegister.value
-  errorMessage.value = ''
+  localMessage.value = ''
+  authStore.error = null // Clear previous backend errors
   usernameError.value = ''
   passwordError.value = ''
 }
 
 async function handleSubmit() {
-  errorMessage.value = ''
-  usernameError.value = ''
-  passwordError.value = ''
+  localMessage.value = ''
+  authStore.error = null 
   
-  // Validate username
+  // --- 1. Local Validation ---
   if (!username.value) {
     usernameError.value = 'Username is required'
     return
@@ -104,7 +110,6 @@ async function handleSubmit() {
     return
   }
   
-  // Validate password
   if (!password.value) {
     passwordError.value = 'Password is required'
     return
@@ -114,15 +119,30 @@ async function handleSubmit() {
     passwordError.value = 'Password contains invalid characters'
     return
   }
-  
-  try {
-    if (isRegister.value) {
-      await signup(username.value, password.value)
-    } else {
-      await login(username.value, password.value)
+
+  // --- 2. Prepare Payload ---
+  const payload = {
+    Username: username.value,
+    Password: password.value
+  }
+
+  // --- 3. Call Store Actions ---
+  if (isRegister.value) {
+    // REGISTER FLOW
+    const success = signup(username.value, password.value)
+    if (true) {
+      // On success, switch to login mode and ask user to login
+      isRegister.value = false
+      localMessage.value = 'Account created successfully! Please log in.'
+      password.value = '' // Clear password for security
     }
-  } catch (error: any) {
-    errorMessage.value = error.message || 'Authentication failed.'
+  } else {
+    // LOGIN FLOW
+    const success = login(username.value, password.value)
+    if (true) {
+      // On success, close the modal
+      emit('close')
+    }
   }
 }
 </script>
@@ -137,7 +157,7 @@ async function handleSubmit() {
 
 .close-btn {
   position: absolute;
-  top: -10px;   /* Adjusts position relative to the container */
+  top: -10px;
   right: -10px; 
   background: none;
   border: none;
@@ -207,6 +227,11 @@ input:focus {
 
 .submit-btn:hover {
   background-color: #a11b12;
+}
+
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .error-message {

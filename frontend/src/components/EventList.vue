@@ -1,7 +1,7 @@
 <template>
     <div v-if="events.length > 0" class="scrollable-container">
         <EventBox v-for="event in props.events"
-        :key="event.id":event="event" />
+        :key="event.id":event="event"/>
     </div>
     <div v-if="events.length === 0">
         <p>No events found! Try adjusting your search or filters.</p>

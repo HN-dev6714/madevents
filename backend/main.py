@@ -169,7 +169,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI()
+app = FastAPI(title="Event Management API", lifespan=lifespan)
 
 origins = [
     "http://localhost:8080",
