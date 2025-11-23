@@ -18,7 +18,8 @@
 
 <style scoped>
     .scrollable-container {
-        height: 34rem;
+        height: 70vh;
+        width: 40vw;
         overflow-y: auto;
         border: 1px solid #ccc;
         padding: 2rem;

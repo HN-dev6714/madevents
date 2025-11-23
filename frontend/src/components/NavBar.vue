@@ -13,11 +13,9 @@
   </nav>
 
   <Teleport to="body">
-    <!-- NEW: Transition Wrapper -->
     <Transition name="modal">
       <div v-if="showPanel && !currentUser" class="auth-overlay" @click.self="togglePanel">
         <div class="auth-modal">
-          <!-- Pass the close event handler -->
           <Auth @close="showPanel = false" />
         </div>
       </div>
@@ -27,7 +25,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-// ERROR CHECK: Make sure this path is exactly where you saved Auth.vue
 import Auth from './Auth.vue' 
 import { useAuth } from '@/composables/useAuth'
 
@@ -40,7 +37,6 @@ function executeLogout() {
 }
 
 function togglePanel() {
-  console.log("Toggling panel. Current state:", showPanel.value); // Debugging line
   showPanel.value = !showPanel.value;
 }
 </script>
@@ -72,7 +68,6 @@ h1 { margin: 4px; color: white; }
     cursor: pointer;
 }
 
-/* OVERLAY STYLES */
 .auth-overlay {
   position: fixed;
   top: 0;

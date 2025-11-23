@@ -20,7 +20,8 @@
     import type { Event } from '@/types/Event.ts'
     import Map from '@/components/Map.vue'
     import WeekDisplay from '@/components/WeekDisplay.vue'
-    import { computed } from 'vue'
+    import { computed, onMounted } from 'vue'
+    import axios from 'axios'
 
     // TODO: Move this to shared types
     interface IDay {
@@ -37,6 +38,15 @@
         5: 'F',
         6: 'Sa'
     } as const;
+
+    onMounted(async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/data');
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    });
 
     const list: Event[] = [
       {
@@ -101,8 +111,8 @@
 </script>
 <style scoped>
   .container {
-      display: flex; /* Makes the child elements flex items arranged in a row by default */
-      justify-content: space-between; /* Distributes space evenly, pushing columns to edges if needed */
+      display: flex; 
+      justify-content: space-between;
   }
 
   .left-column {
