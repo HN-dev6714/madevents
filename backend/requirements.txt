@@ -1,6 +1,4 @@
-fastapi>=0.109.0
-uvicorn>=0.27.0
-sqlmodel>=0.0.14
-duckdb>=0.10.0
-duckdb-engine>=0.11.0
-python-dotenv>=1.0.0
+fastapi
+uvicorn
+duckdb
+pydantic

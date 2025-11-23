@@ -4,16 +4,7 @@ import { ref, onMounted } from 'vue'
 const message = ref('Loading...')
 
 onMounted(async () => {
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/hello')
-    if (!res.ok) {
-      throw new Error(await res.text())
-    }
-    const data = await res.json()
-    message.value = data?.message ?? JSON.stringify(data)
-  } catch (err) {
-    message.value = `Error fetching API: ${err}`
-  }
+  console.log("Hello world!");
 })
 </script>
 
