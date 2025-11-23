@@ -1,33 +1,36 @@
-
+// Example of what useAuth might look like
 import { ref } from 'vue'
 
-const raw = localStorage.getItem('currentUser')
-const parsed = raw === null ? null : raw
-const currentUser = ref<string | number | null>(parsed)
-
-function setUser(id: string | number | null) {
-  currentUser.value = id
-  if (id === null) {
-    localStorage.removeItem('currentUser')
-  }
-  else{
-    localStorage.setItem('currentUser', String(id))
-  }
-}
-
-async function logout(apiBase = 'http://localhost:8000') {
-  try {
-    await fetch(`${apiBase}/logout`, { method: 'POST', credentials: 'include' })
-  } catch (e) {
-    // ignore network errors; still clear local state
-  }
-  setUser(null)
-}
+const currentUser = ref<string | null>(null)
 
 export function useAuth() {
+  
+  const login = async (u: string, p: string) => {
+    // Simulate API call
+    if (u && p) {
+      currentUser.value = u
+    } else {
+      throw new Error("Invalid credentials")
+    }
+  }
+
+  const signup = async (u: string, p: string) => {
+    // Simulate API call
+    if (u && p) {
+      currentUser.value = u
+    } else {
+      throw new Error("Cannot create account")
+    }
+  }
+
+  const logout = () => {
+    currentUser.value = null
+  }
+
   return {
     currentUser,
-    setUser,
-    logout,
+    login,
+    signup,
+    logout
   }
 }

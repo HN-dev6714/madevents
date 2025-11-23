@@ -33,6 +33,7 @@
         text-align: center;
         box-sizing: border-box;
         transition: background-color 0.3s ease; 
+        cursor: default;
     }
 
     .week-item:hover {

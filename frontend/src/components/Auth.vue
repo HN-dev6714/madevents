@@ -1,190 +1,181 @@
 <template>
-  <div class="auth">
-    <div class="tabs">
-      <button :class="{active: mode === 'login'}" @click="mode = 'login'">Login</button>
-      <button :class="{active: mode === 'signup'}" @click="mode = 'signup'">Sign Up</button>
-    </div>
+  <div class="auth-container">
+    <!-- NEW: Close Button -->
+    <button class="close-btn" @click="$emit('close')">×</button>
 
-    <div v-if="mode === 'login'" class="panel">
-      <form @submit.prevent="handleLogin">
-        <label>Username
-          <input v-model="state.loginUsername" type="text" required />
-        </label>
-        <label>Password
-          <input v-model="state.loginPassword" type="password" required />
-        </label>
-        <button type="submit">Log in</button>
-      </form>
-    </div>
+    <h2>{{ isRegister ? 'Create Account' : 'Welcome Back' }}</h2>
 
-    <div v-else class="panel">
-      <form @submit.prevent="handleSignup">
-        <label>Username
-          <input v-model="state.signupUsername" type="text" required />
-        </label>
-        <label>Password
-          <input v-model="state.signupPassword" type="password" required />
-        </label>
-        <button type="submit">Create account & sign in</button>
-      </form>
-    </div>
-
-    <div class="status">
-      <div v-if="currentUser">
-        <strong>Logged in as:</strong> {{ currentUser }}
-        <button @click="handleLogout">Logout</button>
+    <!-- Existing Form -->
+    <form @submit.prevent="handleSubmit">
+      <!-- ... keep your existing inputs ... -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" v-model="username" type="text" required placeholder="Enter username" />
       </div>
-      <div v-else>
-        <small>Not logged in</small>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" v-model="password" type="password" required placeholder="Enter password" />
       </div>
-      <div v-if="message" class="message">{{ message }}</div>
+
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+      <button type="submit" class="submit-btn">
+        {{ isRegister ? 'Sign Up' : 'Log In' }}
+      </button>
+    </form>
+
+    <!-- Existing Toggle -->
+    <div class="toggle-mode">
+      <p v-if="!isRegister">
+        Don't have an account? <a href="#" @click.prevent="toggleMode">Sign Up</a>
+      </p>
+      <p v-else>
+        Already have an account? <a href="#" @click.prevent="toggleMode">Log In</a>
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive } from 'vue'
+import { ref } from 'vue'
+import { useAuth } from '@/composables/useAuth'
 
-  interface IAuth {
-    loginUsername: string | null,
-    loginPassword: string | null,
-    signupUsername: string | null,
-    signupPassword: string | null
+// NEW: Define the events this component emits
+defineEmits(['close'])
+
+const { login, signup } = useAuth()
+const isRegister = ref(false)
+const username = ref('')
+const password = ref('')
+const errorMessage = ref('')
+
+function toggleMode() {
+  isRegister.value = !isRegister.value
+  errorMessage.value = ''
+}
+
+async function handleSubmit() {
+  errorMessage.value = ''
+  try {
+    if (isRegister.value) {
+      await signup(username.value, password.value)
+    } else {
+      await login(username.value, password.value)
+    }
+  } catch (error: any) {
+    errorMessage.value = error.message || 'Authentication failed.'
   }
-
-  const state = reactive<IAuth>({
-    loginUsername: null,
-    loginPassword: null,
-    signupUsername: null,
-    signupPassword: null
-  })
-
-  const API_BASE = 'http://localhost:8000'
-
-  const mode = ref<'login'|'signup'>('login')
-
-  import { useAuth } from '@/composables/useAuth'
-  const { currentUser, setUser } = useAuth()
-  const message = ref<string | null>(null)
-
-  async function handleLogin() {
-    message.value = null
-    if (!state.loginUsername || state.loginUsername.trim() === '') {
-      message.value = 'Provide a username to log in.'
-      return
-    }
-    try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Username: state.loginUsername, Password: state.loginPassword })
-      })
-      if (!res.ok) {
-        const text = await res.text()
-        throw new Error(text || res.statusText)
-      }
-      setUser(state.loginUsername)
-      message.value = 'Logged in successfully.'
-    } catch (err: any) {
-      message.value = `Login failed: ${err.message}`
-    }
-  }
-
-  async function handleSignup() {
-    message.value = null
-    if (!state.signupPassword) {
-      message.value = 'Password required for signup.'
-      return
-    }
-    if (!state.signupUsername || state.signupUsername.trim() === '') {
-      message.value = 'Username required for signup.'
-      return
-    }
-    try {
-      const body: any = { Password: state.signupPassword, Username: state.signupUsername }
-
-      const res = await fetch(`${API_BASE}/users`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-      if (!res.ok) {
-        const txt = await res.text()
-        throw new Error(txt || res.statusText) // TODO: Add toast message
-      }
-      const data = await res.json()
-      // auto-login after signup
-      const loginRes = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ IDu: data.IDu, Password: state.signupPassword })
-      })
-      if (!loginRes.ok) {
-        const txt = await loginRes.text()
-        throw new Error(txt || loginRes.statusText)
-      }
-      setUser(data.IDu)
-      message.value = 'Account created and logged in.'
-      // clear signup form
-      state.signupPassword = null
-      state.signupUsername = null
-      mode.value = 'login'
-    } catch (err: any) {
-      message.value = `Signup failed: ${err.message}`
-    }
-  }
-
-  async function handleLogout() {
-    message.value = null
-    try {
-      await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' })
-    } catch (err: any) {
-      // ignore network errors for logout, still clear UI
-    }
-    setUser(null)
-    message.value = 'Logged out.'
-  }
+}
 </script>
 
 <style scoped>
-  .auth {
-    border: 2px solid #ddd;
-    padding: 12px;
-    border-radius: 6px;
-    max-width: 420px;
-  }
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .tabs button {
-    padding: 6px 10px;
-    border: 2px solid #ccc;
-    background: #f7f7f7;
-  }
-  .tabs button.active {
-    padding: 6px 10px;
-    border: 2px solid #ccc;
-    background: lightblue;
-  }
-  .panel label {
-    display: block;
-    margin-bottom: 8px;
-  }
-  .panel input {
-    width: 100;
-    padding: 6px;
-    margin-top: 4px;
-  }
-  .status {
-    margin-top: 12px;
-  }
-  .message {
-    margin-top: 8px;
-    color: rgb(242, 3, 3)
-  }
+/* NEW: Ensure container allows absolute positioning of the X button */
+.auth-container {
+  position: relative; 
+  text-align: left;
+  color: #333;
+  width: 100%;
+}
+
+/* NEW: Styles for the X button */
+.close-btn {
+  position: absolute;
+  top: -10px;   /* Adjusts position relative to the container */
+  right: -10px; 
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+  padding: 5px;
+}
+
+.close-btn:hover {
+  color: #c42116; /* Red on hover */
+}
+
+.auth-container {
+  text-align: left;
+  color: #333;
+  width: 100%;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #c42116; /* Matches your Nav theme */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Keeps padding inside width */
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #c42116;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #c42116;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #a11b12;
+}
+
+.error-message {
+  color: #d9534f;
+  background-color: #f2dede;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.toggle-mode {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.toggle-mode a {
+  color: #c42116;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.toggle-mode a:hover {
+  text-decoration: underline;
+}
 </style>
