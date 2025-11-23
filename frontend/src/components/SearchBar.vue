@@ -11,7 +11,7 @@
 <script setup lang="ts">
     import EventList from './EventList.vue';
     import type { Event } from '@/types/Event';
-    import { ref, computed } from 'vue';
+    import { ref, computed, reactive} from 'vue';
 
     const props = defineProps<{
         events: Event[];
@@ -20,6 +20,10 @@
     const searchText = ref("");
 
     const filteredEvents = computed(() => {
+        if (!props.events || !Array.isArray(props.events)) {
+             return [];
+        }
+
         if(!searchText.value){
             return props.events;
         }
@@ -29,7 +33,6 @@
            event.name.toLowerCase().includes(lower)
         );
     });
-
 </script>
 
 <style>
