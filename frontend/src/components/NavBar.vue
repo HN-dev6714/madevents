@@ -1,12 +1,10 @@
 <template>
   <nav class="nav">
     <div class="left">
-      <a href="/">Home</a>
-      <a href="#">Add Event</a>
+      <h1>MadEvents</h1>
     </div>
     <div class="right">
       <span v-if="currentUser">Signed in: {{ currentUser }}</span>
-      <span v-else>Not signed in</span>
       <button v-if="!currentUser" @click="showAuth = !showAuth">
         {{ showAuth ? 'Close' : 'Sign In' }}
       </button>
@@ -36,25 +34,33 @@
     .nav { 
       display: flex; 
       justify-content: space-between; 
-      align-items:center;
+      align-items: center;
       padding: 8px 12px; 
-      border-bottom:1px solid #eee 
+      border-bottom:1px solid #eee;
+      background-color: #c42116;
+      position: sticky;
+      top: 0; /* This is the key property that tells it to stick to the top of the viewport */
+      z-index: 1000;
     }
 
-    .nav .left a { 
-      margin-right:12px; 
+    h1 {
+      margin: 4px;
+      color: white;
+    }
+
+    .nav .right a { 
+      margin-right: 24px; 
       text-decoration: none; 
     }
 
     .nav button { 
-      margin-left:12px; 
-      padding:4px 8px
+      padding: 4px 8px
     }
 
     .auth-panel { 
-      padding:12px; 
-      border-bottom:1px solid #eee; 
-      background:#f9f9f9 
+      padding: 12px; 
+      border-bottom: 1px solid #eee; 
+      background: #f9f9f9 
     }
 
     a {
@@ -69,9 +75,5 @@
     a:hover {
       color: red; 
       text-decoration: underline;
-    }
-
-    a:active {
-      color: green;
     }
 </style>
