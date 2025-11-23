@@ -2,7 +2,7 @@
   <nav class="nav">
     <h1>MadEvents</h1>
     <div class="right">
-      <span v-if="currentUser">Signed in: {{ currentUser }}</span>
+      <span v-if="currentUser">Hello, {{ currentUser }}!</span>
       <button v-if="!currentUser" @click="togglePanel" class="sign-in-button">
         {{ showPanel ? 'Close' : 'Sign In' }}
       </button>

@@ -1,7 +1,8 @@
 <template>
     <div class="search-container">
         <input v-model="searchText" 
-            placeholder="Event name"
+            id="event-search"
+            placeholder="Search for an event"
             class="search-bar"
         />
         <EventList :events="filteredEvents" />

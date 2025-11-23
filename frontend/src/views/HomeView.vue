@@ -109,6 +109,7 @@
       flex: 2;
       padding: 4rem;
       padding-top: 2rem;
+      padding-bottom: 0rem;
   }
 
   .right-column {

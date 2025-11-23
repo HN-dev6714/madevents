@@ -24,7 +24,7 @@
         flex-wrap: nowrap; 
         width: 100%; 
         height: 5rem;
-        background: #ccc
+        background: #ccc;
     }
 
     .week-item {
