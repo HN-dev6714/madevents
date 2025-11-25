@@ -4,13 +4,12 @@ import { ref } from 'vue'
 const currentUser = ref<string | null>(null)
 
 export function useAuth() {
-  
   const login = async (u: string, p: string) => {
     // Simulate API call
     if (u && p) {
       currentUser.value = u
     } else {
-      throw new Error("Invalid credentials")
+      throw new Error('Invalid credentials')
     }
   }
 
@@ -19,7 +18,7 @@ export function useAuth() {
     if (u && p) {
       currentUser.value = u
     } else {
-      throw new Error("Cannot create account")
+      throw new Error('Cannot create account')
     }
   }
 
@@ -31,6 +30,6 @@ export function useAuth() {
     currentUser,
     login,
     signup,
-    logout
+    logout,
   }
 }

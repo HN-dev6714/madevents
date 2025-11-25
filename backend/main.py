@@ -1,7 +1,7 @@
 import duckdb
 import hashlib
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends, Response, Cookie
 from pydantic import BaseModel

@@ -1,12 +1,12 @@
 export interface User {
-  Username: string;
+  Username: string
 }
 
 export interface AuthPayload {
-  Username: string;
-  Password: string;
+  Username: string
+  Password: string
 }
 
 export interface ApiMessage {
-  msg: string;
+  msg: string
 }
