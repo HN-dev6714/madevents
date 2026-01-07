@@ -7,8 +7,10 @@
 </template>
 
 <script setup lang="ts">
-  import type { Event } from '@/types/Event'
+  import { type Event, openEventInfoWindow } from '@/types/Event'
   import { computed } from 'vue'
+  import { mapState } from '@/composables/mapState'
+  const { infowindow, geocoder } = mapState()
 
   const convertToFriendlyDate = (date: string) => {
     const toDate = new Date(date)
@@ -28,7 +30,9 @@
   }>()
 
   function marker() {
-    console.log('HEY!')
+    if(props.event.marker !== undefined){
+      openEventInfoWindow(props.event, infowindow.value, geocoder.value)
+    }
   }
 </script>
 

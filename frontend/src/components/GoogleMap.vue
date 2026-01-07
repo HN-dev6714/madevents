@@ -6,6 +6,10 @@
 <script setup lang="ts">
   import { onMounted } from 'vue'
   import type { Event } from '@/types/Event.ts'
+  import { openEventInfoWindow } from '@/types/Event.ts'
+  import { mapState } from '@/composables/mapState'
+
+  const { infowindow, geocoder, initializeMapTools } = mapState()
 
   declare global {
     interface Window {
@@ -26,11 +30,13 @@
 
   function addMarker(
     map: google.maps.Map,
-    geocoder: google.maps.Geocoder,
+    geocoder: google.maps.Geocoder | undefined,
     event: Event,
-    infowindow: google.maps.InfoWindow,
+    infowindow: google.maps.InfoWindow | undefined,
   ) {
     const latLng = { lat: parseFloat(event.latitude), lng: parseFloat(event.longitude) }
+
+    if (!geocoder || !infowindow) return;
 
     const marker = new google.maps.marker.AdvancedMarkerElement({
       position: latLng,
@@ -38,7 +44,10 @@
       title: event.name,
     })
 
-    marker.addListener('click', () => {
+    marker.addListener('click', () => openEventInfoWindow(
+      event, infowindow, geocoder
+    )
+    /**() => {
       infowindow.close()
 
       geocoder
@@ -48,6 +57,7 @@
             const content = `
               <h3>${event.name}</h3>
               <p>Address: ${response.results[0].formatted_address}</p>
+              <p>Description: ${event.description}</p>
             `
             infowindow.setContent(content)
             infowindow.open(map, marker)
@@ -60,13 +70,13 @@
           infowindow.setContent(`<h3>${event.name}</h3><p>Geocoding failed.</p>`)
           infowindow.open(map, marker)
         })
-    })
+    }*/)
+
+    event.marker = marker
   }
 
   onMounted(() => {
     window.initMap = () => {
-      const infowindow = new google.maps.InfoWindow()
-
       const downtown: google.maps.LatLngLiteral = { lat: 43.0747, lng: -89.3842 }
 
       const map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
@@ -75,11 +85,16 @@
         mapId: map_id,
       })
 
-      const geocoder = new google.maps.Geocoder()
+      initializeMapTools(map)
 
-      props.events.forEach((event) => {
-        addMarker(map, geocoder, event, infowindow)
+      const currentInfowindow = infowindow.value
+      const currentGeocoder = geocoder.value
+      
+      if(infowindow.value && geocoder.value){
+        props.events.forEach((event) => {
+        addMarker(map, currentGeocoder, event, currentInfowindow)
       })
+      }
     }
 
     const s = document.createElement('script')
